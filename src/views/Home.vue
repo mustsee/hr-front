@@ -1,18 +1,29 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <header>
+      <b-button @click="handleOpenForm">add advert</b-button>
+    </header>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from "@/components/HelloWorld.vue";
-
 export default {
   name: "Home",
-  components: {
-    HelloWorld
-  }
+  methods: {
+    handleOpenForm() {
+      this.$router.push({ path: "/advert" });
+    },
+  },
 };
 </script>
+
+<style lang="scss" scoped>
+header {
+  height: 80px;
+  padding: 0 60px;
+  display: flex;
+  align-items: center;
+  background-color: #ffdc00;
+  border-bottom: 1px solid black;
+}
+</style>
