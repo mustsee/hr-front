@@ -1,0 +1,24 @@
+{
+  "adverts": [
+    {
+      "id": 1,
+      "domain": "Finance",
+      "companyName": "azeaze",
+      "url": "lkj",
+      "jobPosition": "front end developer",
+      "technicalStack": "jjlmkjze",
+      "impressions": "lkejzrklsd",
+      "date": "2020-07-25T19:37:22.745Z"
+    },
+    {
+      "id": 2,
+      "domain": null,
+      "companyName": "",
+      "url": "",
+      "jobPosition": "",
+      "technicalStack": "",
+      "impressions": "",
+      "date": "2020-07-25T20:01:29.549Z"
+    }
+  ]
+}

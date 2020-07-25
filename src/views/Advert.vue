@@ -5,8 +5,12 @@
     </header>
     <main>
       <b-field label="Domain">
-        <b-select placeholder="Select a domain" expanded>
-          <option v-for="option in domains" :value="option.id" :key="option.id">
+        <b-select v-model="form.domain" placeholder="Select a domain" expanded>
+          <option
+            v-for="option in domains"
+            :value="option.name"
+            :key="option.id"
+          >
             {{ option.name }}
           </option>
         </b-select>
@@ -18,7 +22,7 @@
           spellcheck="false"
         ></b-input>
       </b-field>
-      <b-field label="Avert url">
+      <b-field label="Advert url">
         <b-input
           v-model="form.url"
           placeholder="Copy advertising url"
@@ -27,7 +31,7 @@
       </b-field>
       <b-field label="Job position">
         <b-input
-          v-model="form.jobPostion"
+          v-model="form.jobPosition"
           placeholder="Enter the job position"
           spellcheck="false"
         ></b-input>
@@ -49,22 +53,28 @@
         ></b-input>
       </b-field>
       <div class="action-button">
-        <b-button @click="handleCreateAd" type="is-success">Create ad</b-button>
+        <b-button @click="handleAd" type="is-success">
+          {{ edit ? "Edit" : "Create" }} ad</b-button
+        >
       </div>
     </main>
   </div>
 </template>
 
 <script>
+const baseUrl = "http://localhost:3000";
+
 export default {
   name: "Advert",
   data() {
     return {
+      edit: false,
       form: {
-        domain: "",
+        id: null,
+        domain: null,
         companyName: "",
         url: "",
-        jobPostion: "",
+        jobPosition: "",
         technicalStack: "",
         impressions: "",
       },
@@ -79,7 +89,65 @@ export default {
     handleGoBack() {
       this.$router.push({ path: "/" });
     },
-    handleCreateAd() {},
+    handleAd() {
+      let advert = this.form;
+      advert.date = new Date();
+      const { edit, form } = this;
+      const method = edit ? "PATCH" : "POST";
+      const url = edit ? `${baseUrl}/adverts/${form.id}` : `${baseUrl}/adverts`;
+      const headers = new Headers({
+        "Content-Type": "application/json",
+      });
+      const payload = {
+        method,
+        body: JSON.stringify(advert),
+        headers,
+        mode: "cors",
+        cache: "default",
+      };
+      fetch(url, payload)
+        .then(() => {
+          if (edit) {
+            this.$router.push({ path: "/" });
+            this.$buefy.toast.open({
+              message: "Ad edited !",
+              type: "is-success",
+            });
+          } else {
+            this.form = {
+              id: null,
+              domain: null,
+              companyName: "",
+              url: "",
+              jobPosition: "",
+              technicalStack: "",
+              impressions: "",
+            };
+            this.$buefy.toast.open({
+              message: "Ad created !",
+              type: "is-success",
+            });
+          }
+        })
+        .catch((err) => {
+          console.log("Error :", err);
+        });
+    },
+  },
+  mounted() {
+    const { id } = this.$route.params;
+    if (id) {
+      this.edit = true;
+      const payload = {
+        method: "GET",
+      };
+      fetch(`${baseUrl}/adverts/${id}`, payload)
+        .then((res) => res.json())
+        .then((data) => {
+          this.form = data;
+        })
+        .catch((err) => console.log("Error : ", err));
+    }
   },
 };
 </script>
@@ -91,7 +159,7 @@ header {
   display: flex;
   align-items: center;
   background-color: #ffdc00;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid #111;
 }
 main {
   margin: 60px auto;

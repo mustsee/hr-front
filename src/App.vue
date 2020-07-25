@@ -20,7 +20,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
 
-  background-color: #f1f1f1;
+  background-color: #f5f5f5;
 
   display: flex;
   flex-direction: column;
