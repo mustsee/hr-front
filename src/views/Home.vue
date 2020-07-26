@@ -20,6 +20,8 @@
         :per-page="10"
         :pagination-simple="true"
         pagination-position="top"
+        default-sort="date"
+        default-sort-direction="desc"
       >
         <template slot-scope="props">
           <b-table-column field="domain" label="Domain" sortable width="150">
@@ -61,7 +63,19 @@
             label="Technical stack"
             width="200"
           >
-            <div class="truncate w-200">
+            <div
+              class="truncate w-200"
+              v-if="Array.isArray(props.row.technicalStack)"
+            >
+              <span
+                v-for="stack in props.row.technicalStack"
+                :key="stack"
+                class="stack"
+              >
+                <b-tag>{{ stack }}</b-tag>
+              </span>
+            </div>
+            <div v-else>
               {{ props.row.technicalStack }}
             </div>
           </b-table-column>
@@ -102,7 +116,20 @@
           <article class="media">
             <div class="media-content">
               <div class="content">
-                <p>Technical stack :</p>
+                <p>
+                  Technical stack :
+                  <span v-if="Array.isArray(props.row.technicalStack)">
+                    <span
+                      v-for="stack in props.row.technicalStack"
+                      :key="stack"
+                    >
+                      <b-tag class="stack" type="is-info">{{ stack }}</b-tag>
+                    </span>
+                  </span>
+                  <span v-else>
+                    {{ props.row.technicalStack }}
+                  </span>
+                </p>
                 <p>Impressions : {{ props.row.impressions }}</p>
               </div>
             </div>
@@ -226,6 +253,9 @@ main {
       overflow: hidden;
       text-overflow: ellipsis;
     }
+  }
+  .stack {
+    margin: 0 4px;
   }
   .one-line {
     white-space: no-wrap;
