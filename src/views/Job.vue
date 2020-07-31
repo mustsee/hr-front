@@ -1,5 +1,5 @@
 <template>
-  <div class="advert">
+  <div class="job">
     <header>
       <b-button @click="handleGoBack">&#8592;</b-button>
     </header>
@@ -14,7 +14,7 @@
         >
           <template slot="header">
             <a @click="showAddDomain">
-              <span> Add new... </span>
+              <span>Add new...</span>
             </a>
           </template>
           <template slot="empty">No results for {{ form.domain }}</template>
@@ -27,24 +27,19 @@
           ref="autocomplete"
           :data="filteredCompanyNamesArray"
           placeholder="Select a company name"
+          spellcheck="false"
         >
           <template slot="header">
             <a @click="showAddCompanyName">
-              <span> Add new... </span>
+              <span>Add new...</span>
             </a>
           </template>
-          <template slot="empty"
-            >No results for {{ form.companyName }}</template
-          >
+          <template slot="empty">No results for {{ form.companyName }}</template>
         </b-autocomplete>
       </b-field>
 
-      <b-field label="Advert url">
-        <b-input
-          v-model="form.url"
-          placeholder="Copy advertising url"
-          spellcheck="false"
-        ></b-input>
+      <b-field label="Job url">
+        <b-input v-model="form.url" placeholder="Copy advertising url" spellcheck="false"></b-input>
       </b-field>
       <b-field label="Job position">
         <b-autocomplete
@@ -55,12 +50,10 @@
         >
           <template slot="header">
             <a @click="showAddJobPosition">
-              <span> Add new... </span>
+              <span>Add new...</span>
             </a>
           </template>
-          <template slot="empty"
-            >No results for {{ form.jobPosition }}</template
-          >
+          <template slot="empty">No results for {{ form.jobPosition }}</template>
         </b-autocomplete>
       </b-field>
       <b-field label="Technical stack">
@@ -73,8 +66,7 @@
           icon="label"
           placeholder="Add a stack"
           @typing="getFilteredStack"
-        >
-        </b-taginput>
+        ></b-taginput>
       </b-field>
       <b-field label="Overall impressions">
         <b-input
@@ -86,41 +78,39 @@
         ></b-input>
       </b-field>
       <div class="action-button">
-        <b-button @click="handleAd" type="is-success">
-          {{ edit ? "Edit" : "Create" }} ad</b-button
-        >
+        <b-button @click="handleAd" type="is-success">{{ edit ? "Edit" : "Create" }} ad</b-button>
       </div>
     </main>
   </div>
 </template>
 
 <script>
-const baseUrl = "http://localhost:3000";
+import axios from "axios";
+import apiURI from "../helpers";
 
 export default {
-  name: "Advert",
+  name: "Job",
   data() {
     return {
       edit: false,
       form: {
-        id: null,
         domain: "",
         companyName: "",
         url: "",
         jobPosition: "",
         technicalStack: [],
-        impressions: "",
+        impressions: ""
       },
       domains: [],
       companyNames: [],
       jobPositions: [],
       stack: [],
-      filteredStack: [],
+      filteredStack: []
     };
   },
   computed: {
     filteredCompanyNamesArray() {
-      return this.companyNames.filter((option) => {
+      return this.companyNames.filter(option => {
         return (
           option
             .toString()
@@ -130,7 +120,7 @@ export default {
       });
     },
     filteredJobNamesArray() {
-      return this.jobPositions.filter((option) => {
+      return this.jobPositions.filter(option => {
         return (
           option
             .toString()
@@ -140,7 +130,7 @@ export default {
       });
     },
     filteredDomainsNamesArray() {
-      return this.domains.filter((option) => {
+      return this.domains.filter(option => {
         if (!this.form.domain) return option;
         return (
           option
@@ -149,15 +139,15 @@ export default {
             .indexOf(this.form.domain.toLowerCase()) >= 0
         );
       });
-    },
+    }
   },
   methods: {
     handleGoBack() {
       this.$router.push({ path: "/" });
     },
     getFilteredStack(text) {
-      this.filteredStack = this.stack.filter((option) => {
-        if (!text) return option;
+      this.filteredStack = this.stack.filter(option => {
+        //if (!text) return option;
         return (
           option
             .toString()
@@ -172,12 +162,12 @@ export default {
         inputAttrs: {
           placeholder: "e.g. front-end",
           maxlength: 20,
-          value: this.form.jobPosition,
+          value: this.form.jobPosition
         },
         confirmText: "Add",
         onConfirm: () => {
           this.handleAddJobPosition(this.form.jobPosition);
-        },
+        }
       });
     },
     showAddCompanyName() {
@@ -186,12 +176,12 @@ export default {
         inputAttrs: {
           placeholder: "e.g. Google",
           maxlength: 20,
-          value: this.form.companyName,
+          value: this.form.companyName
         },
         confirmText: "Add",
         onConfirm: () => {
           this.handleAddCompany(this.form.companyName);
-        },
+        }
       });
     },
     showAddDomain() {
@@ -200,93 +190,78 @@ export default {
         inputAttrs: {
           placeholder: "e.g. Regtech",
           maxlength: 20,
-          value: this.form.domain,
+          value: this.form.domain
         },
         confirmText: "Add",
         onConfirm: () => {
           this.handleAddDomain(this.form.domain);
-        },
+        }
       });
     },
     handleAddJobPosition(value) {
-      const headers = new Headers({
-        "Content-Type": "application/json",
-      });
-      const payload = {
-        method: "POST",
-        body: JSON.stringify({ name: value }),
-        headers,
-        mode: "cors",
-        cache: "default",
-      };
-      fetch(`${baseUrl}/jobPositions`, payload)
+      axios
+        .post(`${apiURI}jobPositions`, { name: value })
         .then(() => {
           this.loadJobPositions();
           this.$refs.autocompleteThird.setSelected(value);
         })
-        .catch((err) => console.log("Error in handleAddJobPosition: ", err));
+        .catch(err => console.log("Error in handleAddJobPosition: ", err));
     },
     handleAddDomain(value) {
-      const headers = new Headers({
-        "Content-Type": "application/json",
-      });
-      const payload = {
-        method: "POST",
-        body: JSON.stringify({ name: value }),
-        headers,
-        mode: "cors",
-        cache: "default",
-      };
-      fetch(`${baseUrl}/domains`, payload)
+      axios
+        .post(`${apiURI}domains`, { name: value })
         .then(() => {
           this.loadDomains();
           this.$refs.autocompleteSecond.setSelected(value);
         })
-        .catch((err) => console.log("Error in handleAddDomain: ", err));
+        .catch(err => console.log("Error in handleAddDomain: ", err));
     },
     handleAddCompany(value) {
-      const headers = new Headers({
-        "Content-Type": "application/json",
-      });
-      const payload = {
-        method: "POST",
-        body: JSON.stringify({ name: value }),
-        headers,
-        mode: "cors",
-        cache: "default",
-      };
-      fetch(`${baseUrl}/companyNames`, payload)
+      axios
+        .post(`${apiURI}companyNames`, { name: value })
         .then(() => {
           this.loadCompanyNames();
           this.$refs.autocomplete.setSelected(value);
         })
-        .catch((err) => console.log("Error in handleAddCompany: ", err));
+        .catch(err => console.log("Error in handleAddCompany: ", err));
     },
     handleAd() {
-      let advert = this.form;
-      advert.date = new Date();
-      const { edit, form } = this;
-      const method = edit ? "PATCH" : "POST";
-      const url = edit ? `${baseUrl}/adverts/${form.id}` : `${baseUrl}/adverts`;
-      const headers = new Headers({
-        "Content-Type": "application/json",
+      let job = this.form;
+      const { edit } = this;
+      const stack = this.stack;
+      const jobStack = job.technicalStack;
+      const hasStack = jobStack.filter(oneStack => {
+        if (!stack.includes(oneStack)) return true;
+        return false;
       });
-      const payload = {
-        method,
-        body: JSON.stringify(advert),
-        headers,
-        mode: "cors",
-        cache: "default",
-      };
-      fetch(url, payload)
-        .then(() => {
-          if (edit) {
+      if (hasStack.length) {
+        hasStack.map(item => {
+          axios
+            .post(`${apiURI}stack/`, { name: item })
+            .then(() => {
+              console.log("stack created");
+            })
+            .catch(err => console.log("error", err));
+        });
+      }
+
+      if (edit) {
+        axios
+          .put(`${apiURI}jobs/` + job._id, job)
+          .then(() => {
             this.$router.push({ path: "/" });
             this.$buefy.toast.open({
               message: "Ad edited !",
-              type: "is-success",
+              type: "is-success"
             });
-          } else {
+          })
+          .catch(err => console.log("error", err));
+      } else {
+        axios
+          .post(`${apiURI}jobs`, job)
+          .then(res => {
+            this.loadStack();
+            console.log("axios res", res);
             this.form = {
               id: null,
               domain: null,
@@ -294,50 +269,48 @@ export default {
               url: "",
               jobPosition: "",
               technicalStack: [],
-              impressions: "",
+              impressions: ""
             };
             this.$buefy.toast.open({
               message: "Ad created !",
-              type: "is-success",
+              type: "is-success"
             });
-          }
-        })
-        .catch((err) => {
-          console.log("Error :", err);
-        });
+          })
+          .catch(err => console.log("error", err));
+      }
     },
     loadJobPositions() {
-      fetch(`${baseUrl}/jobPositions`, { method: "GET" })
-        .then((res) => res.json())
-        .then((data) => {
-          this.jobPositions = data.map((item) => item.name);
+      fetch(`${apiURI}jobPositions`, { method: "GET" })
+        .then(res => res.json())
+        .then(data => {
+          this.jobPositions = data.map(item => item.name);
         })
-        .catch((err) => console.log("Error : ", err));
+        .catch(err => console.log("Error : ", err));
     },
     loadCompanyNames() {
-      fetch(`${baseUrl}/companyNames`, { method: "GET" })
-        .then((res) => res.json())
-        .then((data) => {
-          this.companyNames = data.map((item) => item.name);
+      fetch(`${apiURI}companyNames`, { method: "GET" })
+        .then(res => res.json())
+        .then(data => {
+          this.companyNames = data.map(item => item.name);
         })
-        .catch((err) => console.log("Error : ", err));
+        .catch(err => console.log("Error : ", err));
     },
     loadDomains() {
-      fetch(`${baseUrl}/domains`, { method: "GET" })
-        .then((res) => res.json())
-        .then((data) => {
-          this.domains = data.map((item) => item.name);
+      fetch(`${apiURI}domains`, { method: "GET" })
+        .then(res => res.json())
+        .then(data => {
+          this.domains = data.map(item => item.name);
         })
-        .catch((err) => console.log("Error : ", err));
+        .catch(err => console.log("Error : ", err));
     },
     loadStack() {
-      fetch(`${baseUrl}/stack`, { method: "GET" })
-        .then((res) => res.json())
-        .then((data) => {
-          this.stack = data.map((item) => item.name);
+      fetch(`${apiURI}stack`, { method: "GET" })
+        .then(res => res.json())
+        .then(data => {
+          this.stack = data.map(item => item.name);
         })
-        .catch((err) => console.log("Error : ", err));
-    },
+        .catch(err => console.log("Error : ", err));
+    }
   },
   mounted() {
     this.loadStack();
@@ -347,17 +320,14 @@ export default {
     const { id } = this.$route.params;
     if (id) {
       this.edit = true;
-      const payload = {
-        method: "GET",
-      };
-      fetch(`${baseUrl}/adverts/${id}`, payload)
-        .then((res) => res.json())
-        .then((data) => {
-          this.form = data;
+      axios
+        .get(apiURI + "jobs/" + id)
+        .then(res => {
+          this.form = res.data;
         })
-        .catch((err) => console.log("Error : ", err));
+        .catch(err => console.log("Error : ", err));
     }
-  },
+  }
 };
 </script>
 

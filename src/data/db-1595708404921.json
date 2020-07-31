@@ -57,6 +57,10 @@
     {
       "name": "quality engineer",
       "id": 4
+    },
+    {
+      "name": "middle front-end engineer",
+      "id": 5
     }
   ],
   "domains": [
@@ -83,6 +87,10 @@
     {
       "name": "Retail",
       "id": 6
+    },
+    {
+      "name": "Finance",
+      "id": 7
     }
   ],
   "companyNames": [
@@ -157,6 +165,10 @@
     {
       "name": "Memo bank",
       "id": 18
+    },
+    {
+      "name": "INQOM",
+      "id": 19
     }
   ],
   "adverts": [

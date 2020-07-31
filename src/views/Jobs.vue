@@ -2,43 +2,32 @@
   <div class="home">
     <header>
       <b-button @click="handleOpenForm">Add advert</b-button>
-      <b-tag rounded type="is-primary-invert" size="is-medium">{{
-        adverts.length
-      }}</b-tag>
+      <b-tag rounded type="is-primary-invert" size="is-medium">{{ jobs.length }}</b-tag>
     </header>
     <main>
       <b-table
-        :data="adverts"
+        :data="jobs"
         :loading="isLoading"
         mobile-cards
         ref="table"
         detailed
-        detail-key="id"
+        detail-key="_id"
         :opened-detailed="defaultOpenedDetails"
         :show-detail-icon="false"
         paginated
         :per-page="10"
         :pagination-simple="true"
         pagination-position="top"
-        default-sort="date"
+        default-sort="created"
         default-sort-direction="desc"
       >
         <template slot-scope="props">
           <b-table-column field="domain" label="Domain" sortable width="150">
-            <div class="truncate w-150">
-              {{ props.row.domain }}
-            </div>
+            <div class="truncate w-150">{{ props.row.domain }}</div>
           </b-table-column>
 
-          <b-table-column
-            field="companyName"
-            label="Company Name"
-            sortable
-            width="200"
-          >
-            <div class="truncate w-200">
-              {{ props.row.companyName }}
-            </div>
+          <b-table-column field="companyName" label="Company Name" sortable width="200">
+            <div class="truncate w-200">{{ props.row.companyName }}</div>
           </b-table-column>
 
           <b-table-column field="url" label="URL" centered>
@@ -47,65 +36,45 @@
             </div>
           </b-table-column>
 
-          <b-table-column
-            field="jobPosition"
-            label="Job position"
-            sortable
-            width="200"
-          >
-            <div class="truncate w-200">
-              {{ props.row.jobPosition }}
-            </div>
+          <b-table-column field="jobPosition" label="Job position" sortable width="200">
+            <div class="truncate w-200">{{ props.row.jobPosition }}</div>
           </b-table-column>
 
-          <b-table-column
-            field="technicalStack"
-            label="Technical stack"
-            width="200"
-          >
-            <div
-              class="truncate w-200"
-              v-if="Array.isArray(props.row.technicalStack)"
-            >
-              <span
-                v-for="stack in props.row.technicalStack"
-                :key="stack"
-                class="stack"
-              >
+          <b-table-column field="technicalStack" label="Technical stack" width="200">
+            <div class="truncate w-200" v-if="Array.isArray(props.row.technicalStack)">
+              <span v-for="stack in props.row.technicalStack" :key="stack" class="stack">
                 <b-tag>{{ stack }}</b-tag>
               </span>
             </div>
-            <div v-else>
-              {{ props.row.technicalStack }}
-            </div>
+            <div v-else>{{ props.row.technicalStack }}</div>
           </b-table-column>
 
           <b-table-column label="Details" width="100" centered>
             <div class="truncate w-100">
               <div @click="toggle(props.row)" class="action-icon">
                 {{
-                  defaultOpenedDetails.includes(props.row.id)
-                    ? "&#8595;"
-                    : "&#8594;"
+                defaultOpenedDetails.includes(props.row._id)
+                ? "&#8595;"
+                : "&#8594;"
                 }}
               </div>
             </div>
           </b-table-column>
 
-          <b-table-column field="date" label="Date" sortable centered>
+          <b-table-column field="created" label="Created" sortable centered>
             {{
-              props.row.date
-                ? new Date(props.row.date).toLocaleDateString()
-                : "No date"
+            props.row.created
+            ? new Date(props.row.created).toLocaleDateString()
+            : "No date"
             }}
           </b-table-column>
 
           <b-table-column>
             <div class="icons-wrapper">
-              <div class="action-icon" @click="handleEdit(props.row.id)">
+              <div class="action-icon" @click="handleEdit(props.row._id)">
                 <b-icon icon="pencil" size="is-small"></b-icon>
               </div>
-              <div class="action-icon" @click="handleDelete(props.row.id)">
+              <div class="action-icon" @click="handleDelete(props.row._id)">
                 <b-icon icon="delete" size="is-small"></b-icon>
               </div>
             </div>
@@ -119,16 +88,11 @@
                 <p>
                   Technical stack :
                   <span v-if="Array.isArray(props.row.technicalStack)">
-                    <span
-                      v-for="stack in props.row.technicalStack"
-                      :key="stack"
-                    >
+                    <span v-for="stack in props.row.technicalStack" :key="stack">
                       <b-tag class="stack" type="is-info">{{ stack }}</b-tag>
                     </span>
                   </span>
-                  <span v-else>
-                    {{ props.row.technicalStack }}
-                  </span>
+                  <span v-else>{{ props.row.technicalStack }}</span>
                 </p>
                 <p>Impressions : {{ props.row.impressions }}</p>
               </div>
@@ -140,7 +104,7 @@
           <section class="section">
             <div class="content has-text-grey has-text-centered">
               <p>
-                <b-icon icon="emoticon-outline" size="is-large"> </b-icon>
+                <b-icon icon="emoticon-outline" size="is-large"></b-icon>
               </p>
               <p>Nothing here</p>
               <p>Start by adding an advert !</p>
@@ -153,41 +117,34 @@
 </template>
 
 <script>
-const baseUrl = "http://localhost:3000";
+import axios from "axios";
+import apiURI from "./../helpers";
 
 export default {
-  name: "Home",
+  name: "Jobs",
   data() {
     return {
       defaultOpenedDetails: [],
       isLoading: false,
-      adverts: [],
+      jobs: []
     };
   },
   methods: {
     handleOpenForm() {
-      this.$router.push({ path: "/advert" });
+      this.$router.push({ path: "/job" });
     },
     toggle(row) {
       this.$refs.table.toggleDetails(row);
     },
-    deleteAd(rowId) {
-      const payload = {
-        method: "DELETE",
-      };
-      // TODO: change "adverts" route
-      // If "ad" prefix is in the route, the add-blocker is blocking the route...
-      fetch(`${baseUrl}/adverts/${rowId}`, payload)
+    deleteAd(id) {
+      axios
+        .delete(apiURI + "jobs/" + id)
         .then(() => {
-          this.$buefy.toast.open({
-            message: "Ad deleted !",
-            type: "is-success",
-          });
-          this.loadAds();
+          this.loadJobs();
         })
-        .catch((err) => console.log("Error : ", err));
+        .catch(err => console.log("error in delete: ", err));
     },
-    handleDelete(rowId) {
+    handleDelete(id) {
       this.$buefy.dialog.confirm({
         title: "Deleting advert",
         message:
@@ -195,31 +152,28 @@ export default {
         confirmText: "Delete",
         hasIcon: true,
         type: "is-danger",
-        onConfirm: () => this.deleteAd(rowId),
+        onConfirm: () => this.deleteAd(id)
       });
     },
-    handleEdit(rowId) {
-      this.$router.push({ path: `/advert/${rowId}` });
+    handleEdit(id) {
+      this.$router.push({ path: `/job/${id}` });
     },
-    loadAds() {
+    loadJobs() {
       this.isLoading = true;
-      const payload = {
-        method: "GET",
-      };
-      fetch(`${baseUrl}/adverts`, payload)
-        .then((res) => res.json())
-        .then((data) => {
-          this.adverts = data;
+      axios
+        .get(apiURI + "jobs")
+        .then(res => {
+          this.jobs = res.data;
           this.isLoading = false;
         })
-        .catch((err) => {
+        .catch(err => {
           console.log("Error : ", err);
         });
-    },
+    }
   },
   mounted() {
-    this.loadAds();
-  },
+    this.loadJobs();
+  }
 };
 </script>
 
